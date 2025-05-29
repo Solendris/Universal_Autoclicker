@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="31fef980-4b75-4b61-8bee-9f21f1ff5c9d" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/Universal_Autoclicker.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/CAA_Auto.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Logs/13_11_2023.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Logs/14_11_2023.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logika.txt" beforeDir="false" afterPath="$PROJECT_DIR$/logika.txt" afterDir="false" />
+    <list default="true" id="31fef980-4b75-4b61-8bee-9f21f1ff5c9d" name="Changes" comment="deleted logs, cleared and renamed logic.txt file">
+      <change beforePath="$PROJECT_DIR$/logika.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +35,10 @@
     "WebServerToolWindowFactoryState": "false",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "settings.editor.selected.configurable": "editor.preferences.fonts.default",
     "vue.rearranger.settings.migration": "true"
   }
@@ -52,12 +51,25 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725548573107</updated>
-      <workItem from="1748550448589" duration="350000" />
+      <workItem from="1748550448589" duration="744000" />
     </task>
+    <task id="LOCAL-00001" summary="deleted logs, cleared and renamed logic.txt file">
+      <option name="closed" value="true" />
+      <created>1748550831083</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1748550831083</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="deleted logs, cleared and renamed logic.txt file" />
+    <option name="LAST_COMMIT_MESSAGE" value="deleted logs, cleared and renamed logic.txt file" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Universal_Autoclicker$main.coverage" NAME="main Coverage Results" MODIFIED="1748550680223" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
