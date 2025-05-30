@@ -3,3 +3,6 @@
     - clicking on a few different icons/buttons in defined order,
     - performing certain keyboard action (like entering login and password).
 3. Application should have an possibility to save stored steps.
+
+To do:
+Fix handling special keys ex. space (currently clicker writes "space" instead of pressing one). Add logging.
