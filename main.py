@@ -6,29 +6,33 @@ import mouse
 import json
 import threading
 import time
-import datetime
+import logging
 import os
 
 # Global list to hold recorded actions
 actions = []
 recording = False
 
-# Prepare log file
-timestamp_str = datetime.datetime.now().strftime("%d-%m-%Y")
-log_dir = "Logs"
-os.makedirs(log_dir, exist_ok=True)
-log_filename = os.path.join(log_dir, f"autoclicker_log_{timestamp_str}.log")
-log_file = open(log_filename, "a", encoding="utf-8")
 
-def log_event(message):
-    log_file.write(message + "\n")
-    log_file.flush()
+def setup_logging():
+    log_folder = "Logs"
+    if not os.path.exists(log_folder):
+        os.makedirs(log_folder)
+
+    logging.basicConfig(
+        filename=os.path.join(log_folder, f"{time.strftime('%d_%m_%Y')}.log"),
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s]: %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
 
 # === Recording Functions ===
 def record_action(event_type, details):
     timestamp = time.time()
     action = {"time": timestamp, "type": event_type, "details": details}
     actions.append(action)
+
 
 def record_mouse():
     def on_event(event):
@@ -39,14 +43,19 @@ def record_mouse():
                 pos = pyautogui.position()
                 record_action("click", {"x": pos.x, "y": pos.y, "button": event.button})
             except Exception as e:
-                pass
+                logging.error(f"Error occures during recording mouse movement: {str(e)}")
     mouse.hook(on_event)
+
 
 def record_keyboard():
     def on_key(e):
-        if recording and e.event_type in ('down', 'up'):
-            record_action("key", {"name": e.name, "event_type": e.event_type})
+        try:
+            if recording and e.event_type in ('down', 'up'):
+                record_action("key", {"name": e.name, "event_type": e.event_type})
+        except Exception as e:
+            logging.error(f"Error occures during recording key click: {str(e)}")
     keyboard.hook(on_key)
+
 
 def start_recording():
     global actions, recording
@@ -54,14 +63,15 @@ def start_recording():
     recording = True
     threading.Thread(target=record_mouse, daemon=True).start()
     threading.Thread(target=record_keyboard, daemon=True).start()
-    status_label.config(text="Nagrywanie...")
-    log_event("[LOG] Nagrywanie rozpoczęte")
+    logging.info("Recording started")
+
 
 def stop_recording():
     global recording
     recording = False
     status_label.config(text="Zatrzymano")
-    log_event("[LOG] Nagrywanie zakończone")
+    logging.info("Recording stopped")
+
 
 # === Playback Function ===
 def play_actions():
@@ -69,8 +79,7 @@ def play_actions():
         messagebox.showinfo("Info", "Brak nagranych akcji")
         return
 
-    log_event("[LOG] Rozpoczęto odtwarzanie")
-    start_time = actions[0]['time']
+    logging.info("Replay started")
     pressed_keys = set()
 
     for i, action in enumerate(actions):
@@ -93,7 +102,8 @@ def play_actions():
                 keyboard.release(key_name)
                 pressed_keys.remove(key_name)
 
-    log_event("[LOG] Zakończono odtwarzanie")
+    logging.info("Reply finished")
+
 
 # === JSON IO ===
 def save_to_file():
@@ -104,8 +114,9 @@ def save_to_file():
     if path:
         with open(path, "w") as f:
             json.dump(actions, f, indent=2)
-        log_event(f"[LOG] Zapisano dane w lokalizacji: {path}")
+        logging.info(f"Data saved to location: {path}")
         messagebox.showinfo("Zapisano", f"Zapisano do {path}")
+
 
 def load_from_file():
     global actions
@@ -113,12 +124,13 @@ def load_from_file():
     if path:
         with open(path, "r") as f:
             actions = json.load(f)
-        log_event(f"[LOG] Wczytano dane z lokalizacji: {path}")
+        logging.info(f"Data readed from location: {path}")
         messagebox.showinfo("Wczytano", f"Wczytano {len(actions)} akcji z {path}")
+
 
 # === GUI ===
 root = tk.Tk()
-root.title("AutoClicker Tester GUI")
+root.title("Universal AutoClicker")
 root.geometry("300x300")
 
 frame = tk.Frame(root)
@@ -130,7 +142,8 @@ btn_start_rec.pack(pady=5)
 btn_stop_rec = tk.Button(frame, text="Stop nagrywania", command=stop_recording, width=20)
 btn_stop_rec.pack(pady=5)
 
-btn_play = tk.Button(frame, text="Odtwórz akcje", command=lambda: threading.Thread(target=play_actions, daemon=True).start(), width=20)
+btn_play = tk.Button(frame, text="Odtwórz akcje",
+                     command=lambda: threading.Thread(target=play_actions, daemon=True).start(), width=20)
 btn_play.pack(pady=5)
 
 btn_save = tk.Button(frame, text="Zapisz do JSON", command=save_to_file, width=20)
@@ -142,7 +155,5 @@ btn_load.pack(pady=5)
 status_label = tk.Label(root, text="Status: gotowy")
 status_label.pack(pady=10)
 
+setup_logging()
 root.mainloop()
-
-# Zamknij plik logu po zakończeniu GUI
-log_file.close()
