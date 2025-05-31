@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="31fef980-4b75-4b61-8bee-9f21f1ff5c9d" name="Changes" comment="updated requirements.txt file">
+    <list default="true" id="31fef980-4b75-4b61-8bee-9f21f1ff5c9d" name="Changes" comment="renamed requirements.txt file to Notes.txt. Created GUI, added action recording feature, load/save to json actions feature">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Notes.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Notes.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Notes.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,7 +54,8 @@
       <option name="presentableId" value="Default" />
       <updated>1725548573107</updated>
       <workItem from="1748550448589" duration="1313000" />
-      <workItem from="1748639580143" duration="1234000" />
+      <workItem from="1748639580143" duration="1752000" />
+      <workItem from="1748683428931" duration="934000" />
     </task>
     <task id="LOCAL-00001" summary="deleted logs, cleared and renamed logic.txt file">
       <option name="closed" value="true" />
@@ -72,7 +73,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748551333410</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="renamed requirements.txt file to Notes.txt. Created GUI, added action recording feature, load/save to json actions feature">
+      <option name="closed" value="true" />
+      <created>1748641273222</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1748641273222</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -81,9 +90,10 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="deleted logs, cleared and renamed logic.txt file" />
     <MESSAGE value="updated requirements.txt file" />
-    <option name="LAST_COMMIT_MESSAGE" value="updated requirements.txt file" />
+    <MESSAGE value="renamed requirements.txt file to Notes.txt. Created GUI, added action recording feature, load/save to json actions feature" />
+    <option name="LAST_COMMIT_MESSAGE" value="renamed requirements.txt file to Notes.txt. Created GUI, added action recording feature, load/save to json actions feature" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Universal_Autoclicker$main.coverage" NAME="main Coverage Results" MODIFIED="1748640687153" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Universal_Autoclicker$main.coverage" NAME="main Coverage Results" MODIFIED="1748685438092" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
