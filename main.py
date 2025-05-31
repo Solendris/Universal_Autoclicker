@@ -6,15 +6,29 @@ import mouse
 import json
 import threading
 import time
+import datetime
+import os
 
 # Global list to hold recorded actions
 actions = []
 recording = False
 
+# Prepare log file
+timestamp_str = datetime.datetime.now().strftime("%d-%m-%Y")
+log_dir = "Logs"
+os.makedirs(log_dir, exist_ok=True)
+log_filename = os.path.join(log_dir, f"autoclicker_log_{timestamp_str}.log")
+log_file = open(log_filename, "a", encoding="utf-8")
+
+def log_event(message):
+    log_file.write(message + "\n")
+    log_file.flush()
+
 # === Recording Functions ===
 def record_action(event_type, details):
     timestamp = time.time()
-    actions.append({"time": timestamp, "type": event_type, "details": details})
+    action = {"time": timestamp, "type": event_type, "details": details}
+    actions.append(action)
 
 def record_mouse():
     def on_event(event):
@@ -25,7 +39,7 @@ def record_mouse():
                 pos = pyautogui.position()
                 record_action("click", {"x": pos.x, "y": pos.y, "button": event.button})
             except Exception as e:
-                print("Błąd przy odczycie pozycji:", e)
+                pass
     mouse.hook(on_event)
 
 def record_keyboard():
@@ -41,11 +55,13 @@ def start_recording():
     threading.Thread(target=record_mouse, daemon=True).start()
     threading.Thread(target=record_keyboard, daemon=True).start()
     status_label.config(text="Nagrywanie...")
+    log_event("[LOG] Nagrywanie rozpoczęte")
 
 def stop_recording():
     global recording
     recording = False
     status_label.config(text="Zatrzymano")
+    log_event("[LOG] Nagrywanie zakończone")
 
 # === Playback Function ===
 def play_actions():
@@ -53,6 +69,7 @@ def play_actions():
         messagebox.showinfo("Info", "Brak nagranych akcji")
         return
 
+    log_event("[LOG] Rozpoczęto odtwarzanie")
     start_time = actions[0]['time']
     pressed_keys = set()
 
@@ -76,6 +93,8 @@ def play_actions():
                 keyboard.release(key_name)
                 pressed_keys.remove(key_name)
 
+    log_event("[LOG] Zakończono odtwarzanie")
+
 # === JSON IO ===
 def save_to_file():
     if not actions:
@@ -85,6 +104,7 @@ def save_to_file():
     if path:
         with open(path, "w") as f:
             json.dump(actions, f, indent=2)
+        log_event(f"[LOG] Zapisano dane w lokalizacji: {path}")
         messagebox.showinfo("Zapisano", f"Zapisano do {path}")
 
 def load_from_file():
@@ -93,6 +113,7 @@ def load_from_file():
     if path:
         with open(path, "r") as f:
             actions = json.load(f)
+        log_event(f"[LOG] Wczytano dane z lokalizacji: {path}")
         messagebox.showinfo("Wczytano", f"Wczytano {len(actions)} akcji z {path}")
 
 # === GUI ===
@@ -122,3 +143,6 @@ status_label = tk.Label(root, text="Status: gotowy")
 status_label.pack(pady=10)
 
 root.mainloop()
+
+# Zamknij plik logu po zakończeniu GUI
+log_file.close()
