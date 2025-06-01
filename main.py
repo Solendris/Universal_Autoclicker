@@ -9,12 +9,14 @@ import time
 import logging
 import os
 
-# Global list to hold recorded actions
+# === Globals and Initialization ===
+# List to store recorded actions
 actions = []
 recording = False
 stop_signal = False
 
 
+# === Logging Setup ===
 def setup_logging():
     log_folder = "Logs"
     if not os.path.exists(log_folder):
@@ -28,6 +30,7 @@ def setup_logging():
     )
 
 
+# === Recording Functions ===
 def record_action(event_type, details):
     timestamp = time.time()
     action = {"time": timestamp, "type": event_type, "details": details}
@@ -64,23 +67,24 @@ def start_recording():
     threading.Thread(target=record_mouse, daemon=True).start()
     threading.Thread(target=record_keyboard, daemon=True).start()
     logging.info("Recording started")
-    status_label.config(text="Nagrywanie...")
+    status_label.config(text="Recording...")
 
 
 def stop_recording():
     global recording
     recording = False
-    status_label.config(text="Zatrzymano")
+    status_label.config(text="Stopped")
     logging.info("Recording stopped")
 
 
+# === Playback ===
 def play_actions_loop():
     global stop_signal
     stop_signal = False
 
     def play():
         if not actions:
-            messagebox.showinfo("Info", "Brak nagranych akcji")
+            messagebox.showinfo("Info", "No recorded actions")
             return
 
         repeat_count = entry_count.get()
@@ -89,16 +93,16 @@ def play_actions_loop():
         try:
             count = int(repeat_count) if not infinite else float('inf')
         except ValueError:
-            messagebox.showerror("Błąd", "Wprowadź poprawną liczbę powtórzeń.")
+            messagebox.showerror("Error", "Enter a valid number of repetitions.")
             return
 
-        status_label.config(text="Odtwarzanie...")
+        status_label.config(text="Playing...")
         logging.info("Replay started")
 
         pressed_keys = set()
         i = 0
         while i < count and not stop_signal:
-            cycle_label.config(text=f"Cykl: {i + 1}")
+            cycle_label.config(text=f"Cycle: {i + 1}")
             for j, action in enumerate(actions):
                 if stop_signal:
                     break
@@ -125,12 +129,13 @@ def play_actions_loop():
 
             i += 1
 
-        status_label.config(text="Zatrzymano")
+        status_label.config(text="Stopped")
         logging.info("Replay finished")
 
     threading.Thread(target=play, daemon=True).start()
 
 
+# Monitor for 's' key to stop playback
 def monitor_stop():
     def check_stop():
         global stop_signal
@@ -142,16 +147,17 @@ def monitor_stop():
     threading.Thread(target=check_stop, daemon=True).start()
 
 
+# === File I/O ===
 def save_to_file():
     if not actions:
-        messagebox.showinfo("Info", "Brak danych do zapisania")
+        messagebox.showinfo("Info", "No data to save")
         return
     path = filedialog.asksaveasfilename(defaultextension=".json")
     if path:
         with open(path, "w") as f:
             json.dump(actions, f, indent=2)
         logging.info(f"Data saved to location: {path}")
-        messagebox.showinfo("Zapisano", f"Zapisano do {path}")
+        messagebox.showinfo("Saved", f"Saved to {path}")
 
 
 def load_from_file():
@@ -161,10 +167,10 @@ def load_from_file():
         with open(path, "r") as f:
             actions = json.load(f)
         logging.info(f"Data loaded from location: {path}")
-        messagebox.showinfo("Wczytano", f"Wczytano {len(actions)} akcji z {path}")
+        messagebox.showinfo("Loaded", f"Loaded {len(actions)} actions from {path}")
 
 
-# === GUI ===
+# === GUI Setup ===
 root = tk.Tk()
 root.title("Universal AutoClicker")
 root.geometry("350x420")
@@ -172,25 +178,25 @@ root.geometry("350x420")
 frame = tk.Frame(root)
 frame.pack(pady=10)
 
-btn_start_rec = tk.Button(frame, text="Start nagrywania", command=start_recording, width=25)
+btn_start_rec = tk.Button(frame, text="Start Recording", command=start_recording, width=25)
 btn_start_rec.pack(pady=5)
 
-btn_stop_rec = tk.Button(frame, text="Stop nagrywania", command=stop_recording, width=25)
+btn_stop_rec = tk.Button(frame, text="Stop Recording", command=stop_recording, width=25)
 btn_stop_rec.pack(pady=5)
 
-btn_play = tk.Button(frame, text="Odtwórz akcje", command=lambda: [monitor_stop(), play_actions_loop()], width=25)
+btn_play = tk.Button(frame, text="Play Actions", command=lambda: [monitor_stop(), play_actions_loop()], width=25)
 btn_play.pack(pady=5)
 
-btn_save = tk.Button(frame, text="Zapisz do JSON", command=save_to_file, width=25)
+btn_save = tk.Button(frame, text="Save to JSON", command=save_to_file, width=25)
 btn_save.pack(pady=5)
 
-btn_load = tk.Button(frame, text="Wczytaj z JSON", command=load_from_file, width=25)
+btn_load = tk.Button(frame, text="Load from JSON", command=load_from_file, width=25)
 btn_load.pack(pady=5)
 
 count_frame = tk.Frame(root)
 count_frame.pack(pady=5)
 
-entry_label = tk.Label(count_frame, text="Liczba powtórzeń:")
+entry_label = tk.Label(count_frame, text="Repetitions:")
 entry_label.pack(side=tk.LEFT)
 
 entry_count = tk.Entry(count_frame, width=5)
@@ -209,13 +215,13 @@ infinite_var = tk.BooleanVar()
 chk_infinite = tk.Checkbutton(count_frame, text="Infinite", variable=infinite_var)
 chk_infinite.pack(side=tk.LEFT)
 
-status_label = tk.Label(root, text="Status: gotowy")
+status_label = tk.Label(root, text="Status: ready")
 status_label.pack(pady=10)
 
-cycle_label = tk.Label(root, text="Cykl: 0")
+cycle_label = tk.Label(root, text="Cycle: 0")
 cycle_label.pack(pady=2)
 
-hint_label = tk.Label(root, text="Naciśnij 's', aby zatrzymać odtwarzanie.", fg="gray")
+hint_label = tk.Label(root, text="Press 's' to stop playback.", fg="gray")
 hint_label.pack(pady=2)
 
 setup_logging()
