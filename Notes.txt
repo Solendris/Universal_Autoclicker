@@ -1,7 +1,0 @@
-1. Application should have simple, easy to learn GUI.
-2. Application should allow users to define some repeatable steps like:
-    - clicking on a few different icons/buttons in defined order,
-    - performing certain keyboard action (like entering login and password).
-3. Application should have a possibility to save stored steps.
-
-^^^^^^ DONE ^^^^^^
