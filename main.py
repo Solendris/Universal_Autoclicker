@@ -7,11 +7,13 @@ import json
 import threading
 import time
 import logging
+import datetime
 import os
 
 # Global list to hold recorded actions
 actions = []
 recording = False
+stop_signal = False
 
 
 def setup_logging():
@@ -26,13 +28,11 @@ def setup_logging():
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-
-# === Recording Functions ===
 def record_action(event_type, details):
     timestamp = time.time()
     action = {"time": timestamp, "type": event_type, "details": details}
     actions.append(action)
-
+    
 
 def record_mouse():
     def on_event(event):
@@ -44,6 +44,7 @@ def record_mouse():
                 record_action("click", {"x": pos.x, "y": pos.y, "button": event.button})
             except Exception as e:
                 logging.error(f"Error occures during recording mouse movement: {str(e)}")
+
     mouse.hook(on_event)
 
 
@@ -63,7 +64,9 @@ def start_recording():
     recording = True
     threading.Thread(target=record_mouse, daemon=True).start()
     threading.Thread(target=record_keyboard, daemon=True).start()
+
     logging.info("Recording started")
+    status_label.config(text="Nagrywanie...")
 
 
 def stop_recording():
@@ -74,33 +77,81 @@ def stop_recording():
 
 
 # === Playback Function ===
-def play_actions():
-    if not actions:
-        messagebox.showinfo("Info", "Brak nagranych akcji")
-        return
+def play_actions_loop():
+    global stop_signal
+    stop_signal = False
+
+    def play():
+        if not actions:
+            messagebox.showinfo("Info", "Brak nagranych akcji")
+            return
+
+        repeat_count = entry_count.get()
+        infinite = infinite_var.get()
+
+        try:
+            count = int(repeat_count) if not infinite else float('inf')
+        except ValueError:
+            messagebox.showerror("Błąd", "Wprowadź poprawną liczbę powtórzeń.")
+            return
+
+        status_label.config(text="Odtwarzanie...")
+        log_event("[LOG] Rozpoczęto odtwarzanie")
+
+        pressed_keys = set()
+
+        i = 0
+        while i < count and not stop_signal:
+            cycle_label.config(text=f"Cykl: {i + 1}")
+            start_time = actions[0]['time']
+            for j, action in enumerate(actions):
+                if stop_signal:
+                    break
+
+                if j > 0:
+                    delay = action['time'] - actions[j - 1]['time']
+                    time.sleep(delay)
+
 
     logging.info("Replay started")
     pressed_keys = set()
 
-    for i, action in enumerate(actions):
-        if i > 0:
-            delay = action['time'] - actions[i - 1]['time']
-            time.sleep(delay)
+                if action['type'] == 'click':
+                    d = action['details']
+                    pyautogui.mouseDown(x=d['x'], y=d['y'], button=d['button'])
+                    time.sleep(0.05)
+                    pyautogui.mouseUp(x=d['x'], y=d['y'], button=d['button'])
 
-        if action['type'] == 'click':
-            d = action['details']
-            pyautogui.click(x=d['x'], y=d['y'], button=d['button'])
 
-        elif action['type'] == 'key':
-            key_name = action['details']['name']
-            event_type = action['details']['event_type']
+                elif action['type'] == 'key':
+                    key_name = action['details']['name']
+                    event_type = action['details']['event_type']
 
-            if event_type == 'down' and key_name not in pressed_keys:
-                keyboard.press(key_name)
-                pressed_keys.add(key_name)
-            elif event_type == 'up' and key_name in pressed_keys:
-                keyboard.release(key_name)
-                pressed_keys.remove(key_name)
+                    if event_type == 'down' and key_name not in pressed_keys:
+                        keyboard.press(key_name)
+                        pressed_keys.add(key_name)
+                    elif event_type == 'up' and key_name in pressed_keys:
+                        keyboard.release(key_name)
+                        pressed_keys.remove(key_name)
+
+            i += 1
+
+        status_label.config(text="Zatrzymano")
+        log_event("[LOG] Zakończono odtwarzanie")
+
+    threading.Thread(target=play, daemon=True).start()
+
+# === Keyboard Stop Hook ===
+def monitor_stop():
+    def check_stop():
+        global stop_signal
+        while True:
+            if keyboard.is_pressed('s'):
+                stop_signal = True
+                break
+            time.sleep(0.1)
+
+    threading.Thread(target=check_stop, daemon=True).start()
 
     logging.info("Reply finished")
 
@@ -131,29 +182,60 @@ def load_from_file():
 # === GUI ===
 root = tk.Tk()
 root.title("Universal AutoClicker")
-root.geometry("300x300")
+root.geometry("350x420")
 
 frame = tk.Frame(root)
-frame.pack(pady=20)
+frame.pack(pady=10)
 
-btn_start_rec = tk.Button(frame, text="Start nagrywania", command=start_recording, width=20)
+btn_start_rec = tk.Button(frame, text="Start nagrywania", command=start_recording, width=25)
 btn_start_rec.pack(pady=5)
 
-btn_stop_rec = tk.Button(frame, text="Stop nagrywania", command=stop_recording, width=20)
+btn_stop_rec = tk.Button(frame, text="Stop nagrywania", command=stop_recording, width=25)
 btn_stop_rec.pack(pady=5)
 
-btn_play = tk.Button(frame, text="Odtwórz akcje",
-                     command=lambda: threading.Thread(target=play_actions, daemon=True).start(), width=20)
+
+btn_play = tk.Button(frame, text="Odtwórz akcje", command=lambda:[monitor_stop(), play_actions_loop()], width=25)
 btn_play.pack(pady=5)
 
-btn_save = tk.Button(frame, text="Zapisz do JSON", command=save_to_file, width=20)
+btn_save = tk.Button(frame, text="Zapisz do JSON", command=save_to_file, width=25)
 btn_save.pack(pady=5)
 
-btn_load = tk.Button(frame, text="Wczytaj z JSON", command=load_from_file, width=20)
+btn_load = tk.Button(frame, text="Wczytaj z JSON", command=load_from_file, width=25)
 btn_load.pack(pady=5)
+
+count_frame = tk.Frame(root)
+count_frame.pack(pady=5)
+
+entry_label = tk.Label(count_frame, text="Liczba powtórzeń:")
+entry_label.pack(side=tk.LEFT)
+
+entry_count = tk.Entry(count_frame, width=5)
+entry_count.insert(0, "1")
+entry_count.pack(side=tk.LEFT, padx=5)
+
+def validate_digits(P):
+    return P.isdigit() or P == ""
+
+vcmd = (root.register(validate_digits), '%P')
+entry_count.config(validate="key", validatecommand=vcmd)
+
+infinite_var = tk.BooleanVar()
+chk_infinite = tk.Checkbutton(count_frame, text="Infinite", variable=infinite_var)
+chk_infinite.pack(side=tk.LEFT)
 
 status_label = tk.Label(root, text="Status: gotowy")
 status_label.pack(pady=10)
 
 setup_logging()
+
+cycle_label = tk.Label(root, text="Cykl: 0")
+cycle_label.pack(pady=2)
+
+hint_label = tk.Label(root, text="Naciśnij 's', aby zatrzymać odtwarzanie.", fg="gray")
+hint_label.pack(pady=2)
+
+
 root.mainloop()
+
+# Zamknij plik logu po zakończeniu GUI
+log_file.close()
